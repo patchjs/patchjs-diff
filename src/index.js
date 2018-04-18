@@ -2,19 +2,19 @@ import crypto from 'crypto';
 
 const CHUNK_SIZE = 20;
 
-export default function calcDiffData (oldFileContent, newFileContent) {
+export default function calcDiffData (localFileContent, fileContent) {
   let result = {};
   result.m = true;
   result.l = CHUNK_SIZE;
 
   let diffDataArray = [];
-  if (md5(oldFileContent) === md5(newFileContent)) {
+  if (md5(localFileContent) === md5(fileContent)) {
     result.m = false;
     result.c = diffDataArray;
     return result;
   }
 
-  const oldMd5Map = checksum(oldFileContent, CHUNK_SIZE);
+  const oldMd5Map = checksum(localFileContent, CHUNK_SIZE);
   const diffArray = roll(newFileContent, oldMd5Map, CHUNK_SIZE);
   let arrayData = '';
   let lastItem = null;
