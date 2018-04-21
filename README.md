@@ -1,2 +1,3 @@
-# patch-diff
-diff algorithm
+# The diff algorithm of Patch.js
+
+
