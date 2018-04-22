@@ -1,5 +1,5 @@
 {
-  "name": "patch-diff",
+  "name": "patchjs-diff",
   "description": "The diff algorithm of Patch.js",
   "version": "0.1.0",
   "author": {
@@ -10,6 +10,11 @@
     "patch",
     "patchjs"
   ],
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/patchjs/patchjs-diff.git"
+  },
+  "license": "MIT",
   "dependencies": {
     "babel-cli": "^6.24.0",
     "babel-core": "^6.24.0",
@@ -28,9 +33,6 @@
     "test": "mocha test --require babel-register",
     "prepublish": "npm run build",
     "precommit": "npm run lint & npm run test"
-  },
-  "publishConfig": {
-    "registry": "http://registry.npm.alibaba-inc.com"
   },
   "devDependencies": {
     "co": "^4.6.0",
