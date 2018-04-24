@@ -34,7 +34,7 @@ export default function calcDiffData (localFileContent, fileContent) {
         matchedCount = 1;
       }
 
-      if (i === (size - 1)) {
+      if (i === size - 1) {
         arrayData += `${matchedCount}]`;
         diffDataArray.push(JSON.parse(arrayData));
         arrayData = '';
@@ -74,14 +74,14 @@ function roll (content, localMd5Map, chunkSize) {
     const matchedNo = findMatchedNo(chunkMd5, localMd5Map, lastMatchNo);
 
     if (endIndex > len - 1) {
-      if (outBuffer.length > 0 && outBuffer !== '') {
+      if (outBuffer.length > 0) {
         diffDataArray.push({
           match: false,
           data: outBuffer
         });
         outBuffer = '';
       }
-      if (buffer.length > 0 && buffer !== '') {
+      if (buffer.length > 0) {
         diffDataArray.push({
           match: false,
           data: buffer
@@ -89,7 +89,7 @@ function roll (content, localMd5Map, chunkSize) {
       }
       currentIndex = currentIndex + chunkSize;
     } else if (matchedNo >= 0) {
-      if (outBuffer.length > 0 && outBuffer !== '') {
+      if (outBuffer.length > 0) {
         diffDataArray.push({
           match: false,
           data: outBuffer
