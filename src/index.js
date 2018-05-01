@@ -14,27 +14,27 @@ export default function calcDiffData (localFileContent, fileContent) {
     return result;
   }
 
-  const localMd5Map = checksum(localFileContent, CHUNK_SIZE);
-  const diffArray = roll(fileContent, localMd5Map, CHUNK_SIZE);
+  const md5Map = checksum(localFileContent);
+  const diffArray = roll(fileContent, md5Map);
   let arrayData = '';
   let lastItem = null;
   let matchedCount = 0;
-  for (let i = 0, size = diffArray.length; i < size; i++) {
+  for (let i = 0, len = diffArray.length; i < len; i++) {
     let item = diffArray[i];
-    if (item.match) {
-      if (lastItem == null || !lastItem.match) {
+    if (item.matched) {
+      if (lastItem == null || !lastItem.matched) {
         arrayData = `[${item.data},`;
         matchedCount = 1;
-      } else if (lastItem.match && (lastItem.data + 1) === item.data) {
+      } else if (lastItem.matched && (lastItem.data + 1) === item.data) {
         matchedCount++;
-      } else if (lastItem.match && (lastItem.data + 1) !== item.data) {
+      } else if (lastItem.matched && (lastItem.data + 1) !== item.data) {
         arrayData += `${matchedCount}]`;
         diffDataArray.push(JSON.parse(arrayData));
         arrayData = `[${item.data},`;
         matchedCount = 1;
       }
 
-      if (i === size - 1) {
+      if (i === len - 1) {
         arrayData += `${matchedCount}]`;
         diffDataArray.push(JSON.parse(arrayData));
         arrayData = '';
@@ -56,101 +56,102 @@ export default function calcDiffData (localFileContent, fileContent) {
   return result;
 }
 
-function roll (content, localMd5Map, chunkSize) {
+function roll (content, md5Map) {
   let diffDataArray = [];
-  let buffer = '';
-  let outBuffer = '';
-  let currentIndex = 0;
+  let chunkVal = '';
+  let diffVal = '';
+  let current = 0;
   const len = content.length;
-  let lastMatchNo = 0;
+  let lastMatchedNo = 0;
 
-  while (currentIndex <= len) {
-    let endIndex = currentIndex + chunkSize;
-    if (endIndex > len) {
-      endIndex = len;
+  while (current <= len) {
+    let end = current + CHUNK_SIZE;
+    if (end > len) {
+      end = len;
     }
-    buffer = content.substring(currentIndex, endIndex);
-    const chunkMd5 = md5(buffer);
-    const matchedNo = findMatchedNo(chunkMd5, localMd5Map, lastMatchNo);
 
-    if (endIndex > len - 1) {
-      if (outBuffer.length > 0) {
-        diffDataArray.push({
-          match: false,
-          data: outBuffer
-        });
-        outBuffer = '';
-      }
-      if (buffer.length > 0) {
-        diffDataArray.push({
-          match: false,
-          data: buffer
-        });
-      }
-      currentIndex = currentIndex + chunkSize;
-    } else if (matchedNo >= 0) {
-      if (outBuffer.length > 0) {
-        diffDataArray.push({
-          match: false,
-          data: outBuffer
-        });
-        outBuffer = '';
-      }
+    chunkVal = content.substring(current, end);
+    const chunkMd5 = md5(chunkVal);
+    const matchedNo = findMatchedNo(chunkMd5, md5Map, lastMatchedNo);
 
-      diffDataArray.push({
-        match: true,
-        data: matchedNo
-      });
-      currentIndex = currentIndex + chunkSize;
+    if (end > len - 1) {
+      if (diffVal.length > 0) {
+        diffDataArray.push({
+          matched: false,
+          data: diffVal
+        });
+        diffVal = '';
+      }
+      if (chunkVal.length > 0) {
+        diffDataArray.push({
+          matched: false,
+          data: chunkVal
+        });
+      }
+      current = current + CHUNK_SIZE;
     } else {
-      outBuffer = outBuffer + content.substring(currentIndex, currentIndex + 1);
-      currentIndex++;
-    }
+      if (matchedNo >= 0) {
+        if (diffVal.length > 0) {
+          diffDataArray.push({
+            matched: false,
+            data: diffVal
+          });
+          diffVal = '';
+        }
 
-    if (matchedNo >= 0) {
-      lastMatchNo = matchedNo;
+        diffDataArray.push({
+          matched: true,
+          data: matchedNo
+        });
+        current = current + CHUNK_SIZE;
+      } else {
+        diffVal = diffVal + content.substring(current, current + 1);
+        current++;
+      }
+
+      if (matchedNo >= 0) {
+        lastMatchedNo = matchedNo;
+      }
     }
   }
   return diffDataArray;
 }
 
-function checksum (content, chunkSize) {
+function checksum (content) {
   const md5Map = {};
   let index = 0;
   const len = content.length;
   let chunkNo = 0;
   while (index < len) {
-    const chunkString = content.substr(index, chunkSize);
-    const chunkMd5 = md5(chunkString);
-    let numArray = md5Map[chunkMd5];
+    const chunkString = content.substr(index, CHUNK_SIZE);
+    const chunkMd5Val = md5(chunkString);
+    let numArray = md5Map[chunkMd5Val];
     if (!numArray) {
       numArray = [];
     }
     numArray.push(chunkNo);
-    md5Map[chunkMd5] = numArray;
-    index = index + chunkSize;
+    md5Map[chunkMd5Val] = numArray;
+    index = index + CHUNK_SIZE;
     chunkNo++;
   }
   return md5Map;
 }
 
-function findMatchedNo (chunkMd5, localMd5Map, lastMatchNo) {
-  let numArray = localMd5Map[chunkMd5];
-  if (!numArray) {
-    return -1;
-  } else {
+function findMatchedNo (chunkMd5, md5Map, lastMatchedNo) {
+  let numArray = md5Map[chunkMd5];
+  if (numArray) {
     if (numArray.length === 1) {
       return numArray[0];
     } else {
       let lastNo = numArray[0];
       let resultNo = 0;
-      for (let i = 0; i < numArray.length; i++) {
+      for (let i = 0, len = numArray.length; i < len; i++) {
         let no = numArray[i];
-        if (no >= lastMatchNo && lastNo <= lastMatchNo) {
-          return (lastMatchNo - lastNo) >= (no - lastMatchNo) ? no : lastNo;
-        } else if (no >= lastMatchNo && lastNo >= lastMatchNo) {
+        if (no >= lastMatchedNo && lastNo <= lastMatchedNo) {
+          return (lastMatchedNo - lastNo) >= (no - lastMatchedNo) ? no : lastNo;
+        } else if (no >= lastMatchedNo && lastNo >= lastMatchedNo) {
           return lastNo;
-        } else if (no <= lastMatchNo && lastNo <= lastMatchNo) {
+        } else if (no <= lastMatchedNo && lastNo <= lastMatchedNo) {
           resultNo = no;
         } else {
           resultNo = no;
@@ -159,6 +160,8 @@ function findMatchedNo (chunkMd5, localMd5Map, lastMatchNo) {
       }
       return resultNo;
     }
+  } else {
+    return -1;
   }
 }
 
