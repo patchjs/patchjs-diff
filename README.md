@@ -8,7 +8,7 @@ npm install patchjs-diff --save-dev
 
 ## API
 
-calcDiffData (oldString, newString)
+calcDiffData (src, dest)
 
 ## Algorithm
 

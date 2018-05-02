@@ -2,20 +2,20 @@ import crypto from 'crypto';
 
 const CHUNK_SIZE = 20;
 
-export default function calcDiffData (localFileContent, fileContent) {
+export default function calcDiffData (srcFileContent, destFileContent) {
   let result = {};
   result.m = true;
   result.l = CHUNK_SIZE;
 
   let diffDataArray = [];
-  if (md5(localFileContent) === md5(fileContent)) {
+  if (md5(srcFileContent) === md5(destFileContent)) {
     result.m = false;
     result.c = diffDataArray;
     return result;
   }
 
-  const md5Map = checksum(localFileContent);
-  const diffArray = roll(fileContent, md5Map);
+  const md5Map = checksum(srcFileContent);
+  const diffArray = roll(destFileContent, md5Map);
   let arrayData = '';
   let lastItem = null;
   let matchedCount = 0;
