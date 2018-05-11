@@ -10,7 +10,7 @@ npm install patchjs-diff --save-dev
 
 calcDiffData (src, dest)
 
-## Algorithm
+## Algorithm(inspired by mt) 
 
 http://wiki.c2.com/?DiffAlgorithm
 
