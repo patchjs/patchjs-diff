@@ -48,11 +48,12 @@ describe('index.js', () => {
       c: ['var num = 0;']
     });
     // big file content
-    // const source = fs.readFileSync(`${testPath}/data/antd-mobile.min.js`, {encoding: 'utf8'});
-    // const target = fs.readFileSync(`${testPath}/data/antd-mobile.min.change.js`, {encoding: 'utf8'});
-    const source = fs.readFileSync(`${testPath}/data/zepto.min.js`, {encoding: 'utf8'});
-    const target = fs.readFileSync(`${testPath}/data/zepto.min.change.js`, {encoding: 'utf8'});
+    const source = fs.readFileSync(`${testPath}/data/antd-mobile.min.js`, {encoding: 'utf8'});
+    const target = fs.readFileSync(`${testPath}/data/antd-mobile.min.change.js`, {encoding: 'utf8'});
+    // const source = fs.readFileSync(`${testPath}/data/zepto.min.js`, {encoding: 'utf8'});
+    // const target = fs.readFileSync(`${testPath}/data/zepto.min.change.js`, {encoding: 'utf8'});
     const diffResult = calcDiffData(source, target);
+    console.log(diffResult);
     expect(mergeCode(source, diffResult.l, diffResult.c)).to.eql(target);
   });
 });
