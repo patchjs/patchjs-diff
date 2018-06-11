@@ -53,7 +53,6 @@ describe('index.js', () => {
     // const source = fs.readFileSync(`${testPath}/data/zepto.min.js`, {encoding: 'utf8'});
     // const target = fs.readFileSync(`${testPath}/data/zepto.min.change.js`, {encoding: 'utf8'});
     const diffResult = calcDiffData(source, target);
-    console.log(diffResult);
     expect(mergeCode(source, diffResult.l, diffResult.c)).to.eql(target);
   });
 });
